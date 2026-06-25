@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurora Haven | Luxury Hotel Booking</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom luxury gold color accent */
+    .text-gold { color: #d4af37; }
+    .bg-gold { background-color: #d4af37; }
+    .border-gold { border-color: #d4af37; }
+
+    /* Keyframes for the Splash Screen Logo */
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(0.96); opacity: 0.85; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+    .animate-logo {
+      animation: logoPulse 2.2s ease-in-out infinite;
+    }
+
+    /* Transition out splash screen */
+    .splash-fade-out {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+  </style>
+</head>
+<body class="bg-[#fcfbf7] font-sans text-gray-800 flex flex-col min-h-screen overflow-hidden">
+
+  <!-- ================= PRELOADER SPLASH SCREEN ================= -->
+  <div id="splash-screen" class="fixed inset-0 bg-[#fcfbf7] z-50 flex flex-col items-center justify-center transition-all">
+    <div class="text-center max-w-sm px-6">
+      <!-- Animated Logo -->
+      <img src="logo_with_text.png" alt="Aurora Haven Logo" class="w-64 h-64 mx-auto object-contain animate-logo mb-6">
+      
+      <!-- Luxury Shimmering Progress Bar -->
+      <div class="w-48 h-[2px] bg-gray-200 mx-auto rounded-full overflow-hidden relative">
+        <div class="h-full bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-400 w-1/2 rounded-full absolute animate-[shimmer_1.5s_infinite]" 
+             style="animation: slide 1.8s infinite ease-in-out;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes slide {
+      0% { left: -50%; }
+      100% { left: 100%; }
+    }
+  </style>
+
+  <!-- ================= HEADER / NAVBAR ================= -->
+  <header class="w-full bg-white border-b border-gray-100 px-6 lg:px-16 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+      <!-- Minimalist Icon representation or smaller version of logo -->
+      <span class="text-xl font-bold tracking-wider text-gray-900 font-serif">AURORA <span class="text-gold">HAVEN</span></span>
+    </div>
+
+    <!-- Navigation links -->
+    <nav class="hidden md:flex items-center space-x-8">
+      <button onclick="navigateTo('home')" id="nav-home" class="nav-link font-medium text-gray-900 border-b-2 border-gold pb-1 transition duration-200">Home</button>
+      <button onclick="navigateTo('about')" id="nav-about" class="nav-link font-medium text-gray-500 hover:text-gray-900 transition duration-200">About</button>
+      <button onclick="navigateTo('services')" id="nav-services" class="nav-link font-medium text-gray-500 hover:text-gray-900 transition duration-200">Services</button>
+      <button onclick="navigateTo('contact')" id="nav-contact" class="nav-link font-medium text-gray-500 hover:text-gray-900 transition duration-200">Contact</button>
+    </nav>
+
+    <!-- Right utilities -->
+    <div class="flex items-center space-x-4">
+      <button class="p-2 text-gray-600 hover:text-gold transition">
+        <!-- Moon Icon -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+      <button class="bg-black text-white hover:bg-neutral-800 text-sm font-medium px-5 py-2.5 rounded-full transition">
+        Sign in
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT PAGES ================= -->
+  <main class="flex-grow">
+    
+    <!-- PAGE 1: HOME -->
+    <section id="page-home" class="page-section py-12 px-6 lg:px-16 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="space-y-6">
+          <span class="text-sm font-bold uppercase tracking-widest text-gold">Exclusive Sanctuary</span>
+          <h1 class="text-5xl lg:text-6xl font-serif text-gray-900 leading-tight">Your gateway to peaceful luxury</h1>
+          <p class="text-gray-600 leading-relaxed text-lg">
+            Experience our beautifully-designed locations overlooking Menorca’s coastal horizons. Plan your perfect escape today.
+          </p>
+          <div class="pt-4">
+            <button onclick="navigateTo('services')" class="bg-gold text-white font-medium px-8 py-3.5 rounded-lg shadow-md hover:bg-yellow-600 transition">
+              Explore Suites
+            </button>
+          </div>
+        </div>
+        <div class="rounded-3xl overflow-hidden shadow-2xl h-[450px]">
+          <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80" alt="Resort pool area" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: ABOUT -->
+    <section id="page-about" class="page-section hidden py-16 px-6 lg:px-16 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="rounded-3xl overflow-hidden shadow-xl h-[400px]">
+          <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80" alt="Lobby Lounge" class="w-full h-full object-cover">
+        </div>
+        <div class="space-y-6">
+          <span class="text-sm font-bold uppercase tracking-widest text-gold">About Us</span>
+          <h2 class="text-4xl font-serif text-gray-900">Crafting Moments of Pure Leisure</h2>
+          <p class="text-gray-600 leading-relaxed">
+            Aurora Haven is built upon custom design, premium hospitality, and architectural elegance. Tucked into carefully chosen global viewpoints, our suites are designed to harmonize with nature.
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            Whether relaxing in our high-end spas or enjoying gourmet dining sourced locally, we verify every detail of your visit matches our standards.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: SERVICES -->
+    <section id="page-services" class="page-section hidden py-16 px-6 lg:px-16 max-w-7xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="text-sm font-bold uppercase tracking-widest text-gold text-center">World-class Amenities</span>
+        <h2 class="text-4xl font-serif text-gray-900 mt-2">Curated for Your Comfort</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
+          <div class="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center text-gold text-2xl mb-6">🧘♀️</div>
+          <h3 class="text-xl font-bold mb-2">Spa & Wellness</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Indulge in organic body therapies, thermal steam suites, and wellness plans overseen by professional therapists.</p>
+        </div>
+        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
+          <div class="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center text-gold text-2xl mb-6">🍽️</div>
+          <h3 class="text-xl font-bold mb-2">Fine Dining</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Taste curated dishes made by award-winning chefs using local ingredients in sea-view open restaurants.</p>
+        </div>
+        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
+          <div class="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center text-gold text-2xl mb-6">⛵</div>
+          <h3 class="text-xl font-bold mb-2">Private Charter</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Discover hidden coastal caves and tranquil shores with customizable private yachts and local guides.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: CONTACT -->
+    <section id="page-contact" class="page-section hidden py-16 px-6 lg:px-16 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div class="space-y-6">
+          <span class="text-sm font-bold uppercase tracking-widest text-gold">Get In Touch</span>
+          <h2 class="text-4xl font-serif text-gray-900">Reach the Concierge</h2>
+          <p class="text-gray-600">Have questions about your stay, event booking, or travel plans? Let us know and we will get back to you directly.</p>
+          <div class="space-y-4 pt-4">
+            <p class="text-gray-700"><strong>Address:</strong> Santo Tomás Beach, Menorca, Spain</p>
+            <p class="text-gray-700"><strong>Email:</strong> reservations@aurorahaven.com</p>
+          </div>
+        </div>
+        <form class="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+            <input type="text" required class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
+            <input type="email" required class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+            <textarea rows="4" required class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-gold hover:bg-yellow-600 text-white font-medium py-3 rounded-lg transition">Send Message</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-neutral-900 text-neutral-400 py-8 px-6 lg:px-16 border-t border-neutral-800 text-center text-sm">
+    <p>&copy; 2025 Aurora Haven. All rights reserved.</p>
+  </footer>
+
+  <!-- ================= JAVASCRIPT ================= -->
+  <script>
+    // 1. Splash Screen Control
+    window.addEventListener('DOMContentLoaded', () => {
+      const splash = document.getElementById('splash-screen');
+      // Hold splash screen for 2.5 seconds to display logo animation beautifully
+      setTimeout(() => {
+        splash.classList.add('splash-fade-out');
+        document.body.classList.remove('overflow-hidden');
+      }, 2500);
+    });
+
+    // 2. Navigation Control
+    function navigateTo(pageId) {
+      // Hide all pages
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      // Show selected page
+      document.getElementById(`page-${pageId}`).classList.remove('hidden');
+
+      // Update active nav-link state
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('text-gray-900', 'border-b-2', 'border-gold', 'pb-1');
+        link.classList.add('text-gray-500');
+      });
+      const activeLink = document.getElementById(`nav-${pageId}`);
+      if (activeLink) {
+        activeLink.classList.remove('text-gray-500');
+        activeLink.classList.add('text-gray-900', 'border-b-2', 'border-gold', 'pb-1');
+      }
+    }
+  </script>
+</body>
+</html>

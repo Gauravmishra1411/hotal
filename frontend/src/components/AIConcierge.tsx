@@ -12,7 +12,7 @@ interface AIConciergeProps {
   userData?: any;
 }
 
-export default function AIConcierge({ user, userData }: AIConciergeProps) {
+const AIConcierge = ({ userData }: AIConciergeProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: 'Hello! 👋 I\'m your AI Hotel Concierge. How can I help you today? Ask me about services, amenities, dining, or anything about your stay!' },
@@ -193,3 +193,5 @@ export default function AIConcierge({ user, userData }: AIConciergeProps) {
     </>
   );
 }
+
+export default AIConcierge;

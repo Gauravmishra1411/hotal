@@ -4,6 +4,7 @@ import { Sun, Moon, Bell } from 'lucide-react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import logoImg from '../assets/logo.png';
+import { Link } from 'react-router-dom';
 
 interface NavbarProps {
   user: User | null;
@@ -25,17 +26,6 @@ const Navbar = ({ user, userData, showNavLinks = true, onOpenLogin, onOpenProfil
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [siteSettings, setSiteSettings] = useState<any>(null);
-
-  useEffect(() => {
-    const q = query(collection(db, 'site_settings'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        setSiteSettings(snapshot.docs[0].data());
-      }
-    });
-    return () => unsubscribe();
-  }, []);
 
   const playNotificationSound = () => {
     try {
@@ -129,14 +119,27 @@ const Navbar = ({ user, userData, showNavLinks = true, onOpenLogin, onOpenProfil
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-2 relative">
           {/* Logo Section */}
-          <div onClick={() => onHome && onHome()} className="flex-shrink-0 flex items-center gap-4 cursor-pointer">
-            <div className="h-12 w-32 flex-shrink-0">
-              <img src={logoImg} alt="Logo" className="absolute top-[-14px] left-8 h-32 w-auto object-contain z-50" />
+          <div onClick={() => onHome && onHome()} className="flex-shrink-0 flex items-center cursor-pointer">
+            <div className="h-12 w-20 md:w-32 flex-shrink-0 relative">
+              <img src={logoImg} alt="Logo" className="absolute top-[-10px] md:top-[-14px] left-[-5px] md:left-8 h-20 md:h-32 w-auto object-contain z-50 max-w-none" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white flex items-center pl-8">
+            <span className="font-bold text-lg md:text-xl tracking-tight text-gray-900 dark:text-white flex items-center pl-1 md:pl-8">
               AURORA <span className="text-blue-600 ml-1">HAVEN</span>
             </span>
           </div>
+
+          {/* Navigation Links */}
+          {showNavLinks && (
+            <div className="hidden md:flex items-center space-x-8 font-medium text-gray-600 dark:text-gray-300">
+              <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Home</Link>
+              <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">About</Link>
+              <Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Services</Link>
+              <Link to="/gallery" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Gallery</Link>
+              <Link to="/amenities" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Amenities</Link>
+              <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Contact</Link>
+              <Link to="/booking" className="bg-[#d4af37] text-white px-5 py-2 rounded-full font-medium hover:bg-yellow-600 transition-colors shadow-md">Book Now</Link>
+            </div>
+          )}
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
@@ -331,6 +334,17 @@ const Navbar = ({ user, userData, showNavLinks = true, onOpenLogin, onOpenProfil
         }`}
       >
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
+          {showNavLinks && (
+            <div className="flex flex-col space-y-1 pb-2">
+              <Link to="/" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Home</Link>
+              <Link to="/about" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">About</Link>
+              <Link to="/services" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Services</Link>
+              <Link to="/gallery" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Gallery</Link>
+              <Link to="/amenities" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Amenities</Link>
+              <Link to="/contact" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Contact</Link>
+              <Link to="/booking" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-md text-base font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400 mt-2">Book Now</Link>
+            </div>
+          )}
           
           <div className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-2">
             {user ? (

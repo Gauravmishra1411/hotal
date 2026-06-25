@@ -11,6 +11,7 @@ import GuestsManager from './components/GuestsManager';
 import ServiceRequestsManager from './components/ServiceRequestsManager';
 import ServicesManager from './components/ServicesManager';
 import InvoicesManager from './components/InvoicesManager';
+import MessagesManager from './components/MessagesManager';
 import { 
   LayoutDashboard, 
   BedDouble, 
@@ -20,11 +21,11 @@ import {
   Bell, 
   Search,
   CalendarCheck,
-  Building,
   FileText,
   Clock,
   Briefcase,
-  Receipt
+  Receipt,
+  MessageSquare
 } from 'lucide-react';
 import logoImg from './assets/logo.png';
 
@@ -153,6 +154,7 @@ export default function App() {
     { name: 'Hotels & Rooms', icon: BedDouble },
     { name: 'Guests', icon: Users },
     { name: 'Service Requests', icon: Clock },
+    { name: 'Messages', icon: MessageSquare },
     { name: 'Manage Services', icon: Briefcase },
     { name: 'Invoices', icon: Receipt },
     { name: 'Content Management', icon: FileText },
@@ -283,9 +285,10 @@ export default function App() {
           {activeTab === 'Guests' && <GuestsManager />}
           {activeTab === 'Content Management' && <ContentManager />}
           { activeTab === 'Service Requests' && <ServiceRequestsManager /> }
+          { activeTab === 'Messages' && <MessagesManager /> }
           { activeTab === 'Manage Services' && <ServicesManager /> }
           { activeTab === 'Invoices' && <InvoicesManager /> }
-          {activeTab !== 'Dashboard' && activeTab !== 'Bookings' && activeTab !== 'Hotels & Rooms' && activeTab !== 'Guests' && activeTab !== 'Content Management' && activeTab !== 'Service Requests' && activeTab !== 'Manage Services' && activeTab !== 'Invoices' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Bookings' && activeTab !== 'Hotels & Rooms' && activeTab !== 'Guests' && activeTab !== 'Content Management' && activeTab !== 'Service Requests' && activeTab !== 'Manage Services' && activeTab !== 'Invoices' && activeTab !== 'Messages' && (
             <div className="p-8 text-gray-500">Content for {activeTab} will be added soon.</div>
           )}
         </div>

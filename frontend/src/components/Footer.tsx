@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Shield, CreditCard, Clock, Globe } from 'lucide-react';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -80,8 +81,8 @@ export default function Footer({ onNavigate }: FooterProps) {
               <li><a href="#" onClick={(e) => handleNav(e, 'faq')} className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Help Center / FAQs</a></li>
               <li><a href="#" onClick={(e) => handleNav(e, 'manage-booking')} className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Manage your Booking</a></li>
               <li><a href="#" onClick={(e) => handleNav(e, 'cancellation')} className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Cancellation Policy</a></li>
-              <li><a href="#" onClick={(e) => handleNav(e, 'privacy-policy')} className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Privacy Policy</a></li>
-              <li><a href="#" onClick={(e) => handleNav(e, 'terms-of-service')} className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Terms of Service</a></li>
+              <li><Link to="/privacy-policy" className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service" className="hover:text-green-600 dark:hover:text-green-400 transition-colors inline-block transform hover:translate-x-1 duration-200">Terms of Service</Link></li>
             </ul>
           </div>
 

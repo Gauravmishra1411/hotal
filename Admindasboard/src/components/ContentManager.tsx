@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { db, storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Plus, Edit2, Trash2, FileText, Settings, BookOpen, Image as ImageIcon, Tag } from 'lucide-react';
+import { db } from '../firebase';
+import { Plus, Edit2, Trash2, FileText, Settings, BookOpen, Image as ImageIcon, Tag, Star } from 'lucide-react';
 
 export default function ContentManager() {
   const [activeTab, setActiveTab] = useState('Pages');
@@ -13,6 +12,38 @@ export default function ContentManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeedContent = async () => {
+    if (!formData.imageUrl) {
+      alert("Please upload or provide an Image URL first.");
+      return;
+    }
+    setIsSeeding(true);
+    try {
+      const response = await fetch('http://localhost:5001/api/seed-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl: formData.imageUrl,
+          section: activeTab
+        })
+      });
+      const data = await response.json();
+      if (data && !data.error) {
+        // Only override fields that are empty or keep everything? 
+        // We'll just overwrite/merge it.
+        setFormData((prev: any) => ({ ...prev, ...data }));
+      } else {
+        alert(data.error || "Failed to generate content.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to seed content using AI");
+    } finally {
+      setIsSeeding(false);
+    }
+  };
 
   const collections: Record<string, string> = {
     'Pages': 'pages',
@@ -21,7 +52,9 @@ export default function ContentManager() {
     'Hero Content': 'hero_content',
     'Hero Slides': 'hero_slides',
     'Site Settings': 'site_settings',
-    'Coupons': 'coupons'
+    'Coupons': 'coupons',
+    'Dynamic Sections': 'dynamic_sections',
+    'Amenities': 'amenities'
   };
 
   const [settingsData, setSettingsData] = useState<any>({});
@@ -85,13 +118,26 @@ export default function ContentManager() {
 
     setUploading(true);
     try {
-      const storageRef = ref(storage, `content/${Date.now()}-${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setFormData((prev: any) => ({ ...prev, [fieldName]: downloadURL }));
-    } catch (error) {
+      // Upload directly to Cloudinary using unsigned upload
+      const formData = new FormData();
+      formData.append('file', file);
+      // 'ml_default' is usually the default unsigned preset name in Cloudinary
+      formData.append('upload_preset', 'ml_default'); 
+
+      const response = await fetch('https://api.cloudinary.com/v1_1/ddthlutz4/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (data.secure_url) {
+        setFormData((prev: any) => ({ ...prev, [fieldName]: data.secure_url }));
+      } else {
+        throw new Error(data.error?.message || "Cloudinary upload failed");
+      }
+    } catch (error: any) {
       console.error("Error uploading content file:", error);
-      alert("Failed to upload image. Make sure Storage is enabled in Firebase and Rules allow writing.");
+      alert("Failed to upload image to Cloudinary: " + error.message + ". Please make sure unsigned uploads are enabled and 'ml_default' preset exists in your Cloudinary settings.");
     } finally {
       setUploading(false);
     }
@@ -109,6 +155,11 @@ export default function ContentManager() {
       } else if (activeTab === 'Coupons') {
         defaults.discountType = 'percentage';
         defaults.status = 'active';
+      } else if (activeTab === 'Dynamic Sections') {
+        defaults.sectionId = 'home-hero';
+        defaults.status = 'active';
+      } else if (activeTab === 'Amenities') {
+        defaults.sectionId = 'dining';
       }
       setFormData(defaults);
     }
@@ -119,15 +170,21 @@ export default function ContentManager() {
     e.preventDefault();
     try {
       const colName = collections[activeTab];
+      
+      // Firestore does not accept undefined values, so we filter them out
+      const sanitizedData = Object.fromEntries(
+        Object.entries(formData).filter(([_, v]) => v !== undefined)
+      );
+
       if (editingId) {
-        await updateDoc(doc(db, colName, editingId), formData);
+        await updateDoc(doc(db, colName, editingId), sanitizedData);
       } else {
-        await addDoc(collection(db, colName), formData);
+        await addDoc(collection(db, colName), sanitizedData);
       }
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving document: ", error);
-      alert("Error saving document");
+      alert("Error saving document: " + error.message);
     }
   };
 
@@ -283,6 +340,103 @@ export default function ContentManager() {
             </div>
           </>
         );
+      case 'Dynamic Sections':
+        return (
+          <>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Section Identifier *</label>
+              <select required className="w-full border rounded-lg p-2" value={formData.sectionId || 'home-hero'} onChange={e => setFormData({...formData, sectionId: e.target.value})}>
+                <option value="home-hero">Home Page - Hero Section</option>
+                <option value="about-hero">About Page - Main Section</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Subheading</label>
+              <input type="text" className="w-full border rounded-lg p-2" value={formData.subheading || ''} onChange={e => setFormData({...formData, subheading: e.target.value})} placeholder="e.g. Exclusive Sanctuary" />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Main Heading</label>
+              <input type="text" className="w-full border rounded-lg p-2" value={formData.heading || ''} onChange={e => setFormData({...formData, heading: e.target.value})} placeholder="e.g. Your gateway to peaceful luxury" />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Paragraph 1</label>
+              <textarea rows={3} className="w-full border rounded-lg p-2" value={formData.paragraph1 || ''} onChange={e => setFormData({...formData, paragraph1: e.target.value})} placeholder="Main description..." />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Paragraph 2 (Optional)</label>
+              <textarea rows={3} className="w-full border rounded-lg p-2" value={formData.paragraph2 || ''} onChange={e => setFormData({...formData, paragraph2: e.target.value})} placeholder="Secondary description..." />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+              <div className="flex gap-2 mb-2">
+                <input type="text" className="w-full border rounded-lg p-2" value={formData.imageUrl || ''} onChange={e => setFormData({...formData, imageUrl: e.target.value})} placeholder="https://..." />
+                <label className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 border rounded-lg px-4 cursor-pointer text-sm font-medium text-gray-700 flex-shrink-0">
+                  {uploading ? 'Uploading...' : 'Upload Image'}
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleContentFileUpload(e, 'imageUrl')} disabled={uploading} />
+                </label>
+              </div>
+              {formData.imageUrl && (
+                <div className="h-20 w-32 rounded-lg overflow-hidden border border-gray-200 mb-2">
+                  <img src={formData.imageUrl} alt="Section Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+                <input type="text" className="w-full border rounded-lg p-2" value={formData.buttonText || ''} onChange={e => setFormData({...formData, buttonText: e.target.value})} placeholder="e.g. Explore Suites" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Button Link</label>
+                <input type="text" className="w-full border rounded-lg p-2" value={formData.buttonLink || ''} onChange={e => setFormData({...formData, buttonLink: e.target.value})} placeholder="e.g. /services" />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select className="w-full border rounded-lg p-2 bg-white" value={formData.status || 'active'} onChange={e => setFormData({...formData, status: e.target.value})}>
+                <option value="active">Active</option>
+                <option value="disabled">Disabled</option>
+              </select>
+            </div>
+          </>
+        );
+      case 'Amenities':
+        return (
+          <>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Section Identifier *</label>
+              <select required className="w-full border rounded-lg p-2" value={formData.sectionId || 'dining'} onChange={e => setFormData({...formData, sectionId: e.target.value})}>
+                <option value="dining">Dining</option>
+                <option value="spa">Spa & Wellness</option>
+                <option value="activities">Activities & Excursions</option>
+                <option value="offers">Special Offers</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <input type="text" required className="w-full border rounded-lg p-2" value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Gourmet Dining" />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea required rows={4} className="w-full border rounded-lg p-2" value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Section description..." />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+              <div className="flex gap-2 mb-2">
+                <input type="text" className="w-full border rounded-lg p-2" value={formData.imageUrl || ''} onChange={e => setFormData({...formData, imageUrl: e.target.value})} placeholder="https://..." />
+                <label className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 border rounded-lg px-4 cursor-pointer text-sm font-medium text-gray-700 flex-shrink-0">
+                  {uploading ? 'Uploading...' : 'Upload Image'}
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleContentFileUpload(e, 'imageUrl')} disabled={uploading} />
+                </label>
+              </div>
+              {formData.imageUrl && (
+                <div className="h-20 w-32 rounded-lg overflow-hidden border border-gray-200 mb-2">
+                  <img src={formData.imageUrl} alt="Section Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+          </>
+        );
       default:
         return null;
     }
@@ -316,7 +470,9 @@ export default function ContentManager() {
             { name: 'Hero Content', icon: ImageIcon },
             { name: 'Hero Slides', icon: ImageIcon },
             { name: 'Site Settings', icon: Settings },
-            { name: 'Coupons', icon: Tag }
+            { name: 'Coupons', icon: Tag },
+            { name: 'Dynamic Sections', icon: FileText },
+            { name: 'Amenities', icon: Star }
           ].map((tab) => (
             <button
               key={tab.name}
@@ -405,6 +561,33 @@ export default function ContentManager() {
                         <img src={item.imageUrl} alt={item.caption} className="w-full h-full object-cover" />
                       </div>
                     )}
+                    {activeTab === 'Dynamic Sections' && item.imageUrl && (
+                      <div className="h-32 w-full rounded-lg bg-gray-100 overflow-hidden mb-3">
+                        <img src={item.imageUrl} alt={item.heading} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    {activeTab === 'Amenities' && item.imageUrl && (
+                      <div className="h-32 w-full rounded-lg bg-gray-100 overflow-hidden mb-3">
+                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    {activeTab === 'Dynamic Sections' && (
+                      <div className="flex justify-between items-center mb-3">
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {item.status === 'active' ? 'Active' : 'Disabled'}
+                        </span>
+                        <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded truncate">
+                          {item.sectionId}
+                        </span>
+                      </div>
+                    )}
+                    {activeTab === 'Amenities' && (
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded truncate uppercase tracking-wider">
+                          {item.sectionId}
+                        </span>
+                      </div>
+                    )}
                     {activeTab === 'Coupons' && (
                       <div className="flex justify-between items-center mb-3">
                         <span className={`px-2 py-0.5 rounded text-xs font-bold ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -441,22 +624,33 @@ export default function ContentManager() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
               <h3 className="text-lg font-bold text-gray-900">
                 {editingId ? `Edit ${activeTab.slice(0, -1)}` : `New ${activeTab.slice(0, -1)}`}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
-            <form onSubmit={handleSave} className="p-6">
-              {renderFormFields()}
-              <div className="mt-6 flex gap-3 justify-end">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors">
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-green-600 text-white font-medium hover:bg-green-700 rounded-lg transition-colors shadow-sm">
-                  Save
-                </button>
+            <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 overflow-y-auto flex-1">
+                {renderFormFields()}
+              </div>
+              <div className="px-6 py-4 border-t border-gray-100 bg-white flex justify-between items-center flex-shrink-0">
+                <div>
+                  {formData.imageUrl && (
+                    <button type="button" onClick={handleSeedContent} disabled={isSeeding} className="px-4 py-2 bg-purple-100 text-purple-700 font-medium hover:bg-purple-200 rounded-lg transition-colors shadow-sm flex items-center gap-2">
+                      {isSeeding ? '✨ Generating...' : '✨ Auto-fill with AI'}
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors">
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-6 py-2 bg-green-600 text-white font-medium hover:bg-green-700 rounded-lg transition-colors shadow-sm">
+                    Save
+                  </button>
+                </div>
               </div>
             </form>
           </div>

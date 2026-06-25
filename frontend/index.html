@@ -5,12 +5,66 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hotal menagement</title>
+  <title>Aurora Haven | Luxury Hotel Booking</title>
+  <style>
+    /* Custom luxury gold color accent */
+    .text-gold { color: #d4af37; }
+    .bg-gold { background-color: #d4af37; }
+    .border-gold { border-color: #d4af37; }
+
+    /* Keyframes for the Splash Screen Logo */
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(0.96); opacity: 0.85; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+    .animate-logo {
+      animation: logoPulse 2.2s ease-in-out infinite;
+    }
+
+    /* Transition out splash screen */
+    .splash-fade-out {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    @keyframes slide {
+      0% { left: -50%; }
+      100% { left: 100%; }
+    }
+  </style>
 </head>
 
-<body>
+<body class="bg-[#fcfbf7] dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-100 flex flex-col min-h-screen">
+  
+  <!-- ================= PRELOADER SPLASH SCREEN ================= -->
+  <div id="splash-screen" class="fixed inset-0 bg-[#fcfbf7] dark:bg-gray-900 z-[99999] flex flex-col items-center justify-center transition-all">
+    <div class="text-center max-w-sm px-6">
+      <!-- Animated Logo -->
+      <img src="/logo_with_text.png" alt="Aurora Haven Logo" class="w-64 h-64 mx-auto object-contain animate-logo mb-6">
+      
+      <!-- Luxury Shimmering Progress Bar -->
+      <div class="w-48 h-[2px] bg-gray-200 dark:bg-gray-800 mx-auto rounded-full overflow-hidden relative">
+        <div class="h-full bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-400 w-1/2 rounded-full absolute animate-[shimmer_1.5s_infinite]" 
+             style="animation: slide 1.8s infinite ease-in-out;">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  
+  <script>
+    // 1. Splash Screen Control
+    window.addEventListener('DOMContentLoaded', () => {
+      const splash = document.getElementById('splash-screen');
+      // Hold splash screen for 2.5 seconds to display logo animation beautifully
+      setTimeout(() => {
+        if(splash) splash.classList.add('splash-fade-out');
+      }, 2500);
+    });
+  </script>
 </body>
 
 </html>

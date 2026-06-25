@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, setDoc, doc, updateDoc, serverTimestamp, getDoc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, setDoc, doc, updateDoc, serverTimestamp, getDoc, addDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { db, secondaryAuth } from '../firebase';
 import { Search, User, Mail, DollarSign, Calendar, MapPin, Plus, X, Loader2, Send, FileImage, Eye } from 'lucide-react';

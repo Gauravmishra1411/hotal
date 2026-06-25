@@ -273,6 +273,49 @@ const summarizeReviewsFlow = ai.defineFlow(
   }
 );
 
+// Flow: Seed Content from Image (Multimodal)
+const seedContentFlow = ai.defineFlow(
+  {
+    name: 'seedContent',
+    inputSchema: z.object({
+      imageUrl: z.string().url(),
+      section: z.string()
+    }),
+    outputSchema: z.object({
+      title: z.string().optional(),
+      subheading: z.string().optional(),
+      heading: z.string().optional(),
+      paragraph1: z.string().optional(),
+      paragraph2: z.string().optional(),
+      description: z.string().optional(),
+      caption: z.string().optional(),
+      buttonText: z.string().optional()
+    }),
+  },
+  async ({ imageUrl, section }) => {
+    const result = await ai.generate({
+      model: 'googleai/gemini-2.5-flash',
+      prompt: [
+        { text: `You are an expert copywriter for a luxury hotel. Analyze this image and generate compelling text for a website section named/typed: "${section}". Keep descriptions concise, evocative, and luxurious. Fill out the relevant fields.` },
+        { media: { url: imageUrl } }
+      ],
+      output: {
+        schema: z.object({
+          title: z.string().describe('A short, elegant title for the section').optional(),
+          subheading: z.string().describe('A very short uppercase subheading (e.g. EXCLUSIVE SANCTUARY)').optional(),
+          heading: z.string().describe('A main heading, slightly longer than the title').optional(),
+          paragraph1: z.string().describe('A detailed paragraph describing the image and experience').optional(),
+          paragraph2: z.string().describe('An optional secondary paragraph with more details').optional(),
+          description: z.string().describe('A 2-3 sentence description of the amenity or service').optional(),
+          caption: z.string().describe('A very short caption for the image').optional(),
+          buttonText: z.string().describe('A call to action button text (e.g. Explore Now)').optional()
+        })
+      }
+    });
+    return result.output || {};
+  }
+);
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  EXPRESS SERVER
 // ═══════════════════════════════════════════════════════════════════════════
@@ -327,6 +370,19 @@ app.post('/api/summarize-reviews', async (req, res) => {
   } catch (error) {
     console.error('❌ Review summarizer error:', error.message);
     res.status(500).json({ error: 'Failed to summarize', details: error.message });
+  }
+});
+
+// ── Seed Content Endpoint ───────────────────────────────────────────────────
+app.post('/api/seed-content', async (req, res) => {
+  try {
+    const { imageUrl, section } = req.body;
+    if (!imageUrl) return res.status(400).json({ error: 'Image URL is required' });
+    const result = await seedContentFlow({ imageUrl, section: section || 'General' });
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Seed content error:', error.message);
+    res.status(500).json({ error: 'Failed to seed content', details: error.message });
   }
 });
 

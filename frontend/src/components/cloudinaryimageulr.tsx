@@ -83,12 +83,12 @@ export default function CloudinaryImageSlider() {
         fetchSlides();
     }, []);
 
-    // Auto-slide every 3.5 seconds
+    // Auto-slide every 10 seconds
     useEffect(() => {
         if (sliderImages.length <= 1) return;
         const slideInterval = setInterval(() => {
             setCurrent((prev) => (prev + 1) % sliderImages.length);
-        }, 3500);
+        }, 10000);
         return () => clearInterval(slideInterval);
     }, [sliderImages.length]);
 

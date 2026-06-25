@@ -107,7 +107,7 @@ export function generateInvoicePDF(bookingId: string, guestName: string, request
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            ${items.map((item, idx) => `
+            ${items.map((item, _idx) => `
               <tr class="text-sm">
                 <td class="py-4 font-bold text-gray-800">${item.name}</td>
                 <td class="py-4 text-gray-500">${item.category}</td>

@@ -4,20 +4,24 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 import Navbar from './components/Navbar';
-import CloudinaryImageSlider from './components/cloudinaryimageulr';
-import SearchBar from './components/SearchBar';
-import FilterSection from './components/FilterSection';
-import HotelCards from './components/HotelCards';
 import LoginModal from './components/LoginModal';
 import ProfileModal from './components/ProfileModal';
-import ServicesSection from './components/ServicesSection';
-import BlogSection from './components/BlogSection';
 import DynamicPage from './components/DynamicPage';
 import Footer from './components/Footer';
 import GuestDashboard from './components/GuestDashboard';
 import ProfileCompletionModal from './components/ProfileCompletionModal';
 import LinkBookingModal from './components/LinkBookingModal';
 import AIConcierge from './components/AIConcierge';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import About from './pages/About';
+import Services from './pages/Services';
+import Contact from './pages/Contact';
+import Amenities from './pages/Amenities';
+import BookingEngine from './pages/BookingEngine';
+import Gallery from './pages/Gallery';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -69,8 +73,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-amber-50/60 dark:bg-amber-950/20 transition-colors duration-300">
-      <Navbar 
+    <Router>
+      <div className="min-h-screen bg-amber-50/60 dark:bg-amber-950/20 transition-colors duration-300">
+        <Navbar 
         user={user} 
         userData={userData}
         showNavLinks={!showDashboard && !activePageSlug}
@@ -90,23 +95,20 @@ function App() {
       ) : activePageSlug ? (
         <DynamicPage slug={activePageSlug} onBack={() => setActivePageSlug(null)} />
       ) : (
-        <main className="pb-8 pt-24">
-          
-          <SearchBar />
-          <CloudinaryImageSlider />
-          <ServicesSection />
-          <FilterSection />
-          
-          <HotelCards 
-            user={user} 
-            onOpenLogin={() => setIsLoginOpen(true)} 
-          />
-
-          <BlogSection />
-        </main>
+        <Routes>
+          <Route path="/" element={<Home user={user} onOpenLogin={() => setIsLoginOpen(true)} />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/amenities" element={<Amenities />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/booking" element={<BookingEngine />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+        </Routes>
       )}
 
-        <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} user={user} />
         {user && (
           <LinkBookingModal 
@@ -132,7 +134,8 @@ function App() {
 
         {/* AI Concierge Chat Widget */}
         <AIConcierge user={user} userData={userData} />
-    </div>
+      </div>
+    </Router>
   )
 }
 

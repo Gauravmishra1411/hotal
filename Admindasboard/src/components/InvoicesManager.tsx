@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Loader2, Receipt, Download, FileText, Hash, User, Calendar } from 'lucide-react';
+import { Loader2, Receipt, Download, Hash, User } from 'lucide-react';
 
 export default function InvoicesManager() {
   const [allRequests, setAllRequests] = useState<any[]>([]);
