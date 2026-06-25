@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function TermsOfService() {
   return (
     <div className="bg-neutral-50 min-h-screen py-32 px-6 lg:px-16">
